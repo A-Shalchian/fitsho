@@ -13,7 +13,10 @@ export default defineSchema({
   exercises: defineTable({
     name: v.string(),
     muscleGroup: v.string(),
+    secondaryMuscles: v.optional(v.array(v.string())),
     equipment: v.string(),
+    gifUrl: v.optional(v.string()),
+    instructions: v.optional(v.array(v.string())),
     isCustom: v.boolean(),
     userId: v.optional(v.string()),
   })

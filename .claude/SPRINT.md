@@ -12,12 +12,20 @@
 - [x] Landing page with animated grid background
 - [x] AppShell component (shared nav layout)
 - [x] Dashboard page (greeting, weekly calendar placeholder)
-- [x] Profile page (email display, weight unit toggle, sign out)
+- [x] Profile page (professional UI with avatar, sections, light gradient buttons)
 - [x] Workout page (start/finish workout shell)
+- [x] Exercise library seeding (ExerciseDB API integration with filters)
+- [x] Exercise library page (/exercises) with card grid
+- [x] Exercise cards with lazy-loaded GIFs
+- [x] Exercise detail modal (GIF, instructions, muscles)
+- [x] Pagination (load more)
+- [x] Sorting (name, muscle group, equipment)
+- [x] Custom scrollbar styling
+- [x] Filter by muscle group
+- [x] Filter by equipment
 
 ### In Progress
-- [ ] Exercise library seeding
-- [ ] Exercise picker with muscle group filter
+- [ ] Exercise picker modal (for workout flow)
 - [ ] Set logging UI
 
 ### Up Next
@@ -37,15 +45,17 @@
 - [ ] Streak tracking display
 
 ### Phase 3: Exercise Library
-- [ ] Seed exercise database (40+ exercises)
-- [ ] Exercise picker modal
-- [ ] Filter by muscle group
+- [x] Seed exercise database (ExerciseDB API - 1300+ exercises with GIFs)
+- [x] Exercise library page with cards
+- [x] Sorting by name/muscle/equipment
+- [x] Filter by muscle group
+- [x] Filter by equipment
 - [ ] Search functionality
 - [ ] Custom exercise creation
 
 ### Phase 4: Workout Tracking (Core)
 - [ ] Start workout flow
-- [ ] Add exercise to active workout
+- [ ] Add exercise to active workout (exercise picker modal)
 - [ ] Set-by-set logging UI (weight, reps, RPE)
 - [ ] Show last session's performance for exercise
 - [ ] Warmup set toggle
@@ -110,15 +120,18 @@
 - Single accent color (purple #7c3aed)
 - Flat cards with thin borders (#1a1a1a)
 - Geist font family
-- No gradients on UI elements
-- Pill-shaped primary buttons, rounded-lg secondary
+- Light gradients on active/selected buttons (white to gray on dark bg)
+- Pill-shaped primary buttons, rounded-xl cards
 
 ### Component Patterns
 - AppShell for all authenticated pages
-- Cards: bg-surface, border-border, rounded-lg
-- Buttons: foreground bg for primary, border-only for secondary
+- Cards: bg-surface, border-border, rounded-xl
+- Buttons: light gradient for active states on dark bg
+- Destructive buttons: red tints at 10-20% opacity
+- Section headers: uppercase, small, muted, tracking-wider
 - Text: foreground for headings, muted for secondary
 - Active nav links highlighted
+- Custom scrollbar (thin, dark)
 
 ---
 
@@ -138,3 +151,19 @@
 - Built landing page, dashboard, profile, workout pages
 - Implemented AppShell for consistent navigation
 - All pages now have cohesive dark minimal design
+
+### 2026-01-28
+- Integrated ExerciseDB API for exercise seeding
+- Added filters (equipment, bodyPart, target) and limit params to seed function
+- Built /exercises page with responsive card grid
+- Added lazy loading for exercise GIFs
+- Added exercise detail modal with instructions
+- Implemented pagination (load more button)
+- Added sorting dropdown (name, muscle group, equipment)
+- Redesigned profile page (professional layout, avatar, sections)
+- Added light gradient buttons for selected states
+- Custom scrollbar styling throughout app
+- Added muscle group filter (server-side with index)
+- Added equipment filter (client-side on results)
+- Filter bar UI with dropdowns and clear button
+- Empty state for no results

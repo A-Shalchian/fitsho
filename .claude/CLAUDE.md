@@ -15,3 +15,10 @@
 ## Project
 - Fitness tracking app
 - MVP spec: .claude/MVP.md
+- Sprint tracker: .claude/SPRINT.md
+
+## Workflow
+- When a task is completed, check .claude/SPRINT.md and update it:
+  - Mark completed items with [x]
+  - Move items between sections as needed
+  - Add session notes with date and summary of what was done

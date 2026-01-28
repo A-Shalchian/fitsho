@@ -13,6 +13,7 @@ export function AppShell({ children }: AppShellProps) {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/workout", label: "Workout" },
+    { href: "/exercises", label: "Exercises" },
     { href: "/profile", label: "Profile" },
   ];
 

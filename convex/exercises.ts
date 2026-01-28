@@ -1,5 +1,7 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, action } from "./_generated/server";
 import { v } from "convex/values";
+import { api } from "./_generated/api";
+import { paginationOptsValidator } from "convex/server";
 
 export const list = query({
   args: {
@@ -16,85 +18,191 @@ export const list = query({
   },
 });
 
-export const seed = mutation({
+export const listPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    muscleGroup: v.optional(v.string()),
+    equipment: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const baseQuery = args.muscleGroup
+      ? ctx.db.query("exercises").withIndex("by_muscle_group", (q) => q.eq("muscleGroup", args.muscleGroup!))
+      : ctx.db.query("exercises");
+
+    const results = await baseQuery.order("asc").paginate(args.paginationOpts);
+
+    const page = args.equipment
+      ? results.page.filter((e) => e.equipment === args.equipment)
+      : results.page;
+
+    return { ...results, page };
+  },
+});
+
+export const getEquipmentList = query({
   args: {},
   handler: async (ctx) => {
-    const existing = await ctx.db.query("exercises").first();
-    if (existing) return "Already seeded";
+    const exercises = await ctx.db.query("exercises").collect();
+    return [...new Set(exercises.map((e) => e.equipment))].sort();
+  },
+});
 
-    const exercises = [
-      { name: "Bench Press", muscleGroup: "chest", equipment: "barbell" },
-      { name: "Incline Bench Press", muscleGroup: "chest", equipment: "barbell" },
-      { name: "Dumbbell Fly", muscleGroup: "chest", equipment: "dumbbell" },
-      { name: "Push Up", muscleGroup: "chest", equipment: "bodyweight" },
-      { name: "Cable Crossover", muscleGroup: "chest", equipment: "cable" },
-      { name: "Incline Dumbbell Press", muscleGroup: "chest", equipment: "dumbbell" },
-      { name: "Chest Dip", muscleGroup: "chest", equipment: "bodyweight" },
+export const getById = query({
+  args: { id: v.id("exercises") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
 
-      { name: "Deadlift", muscleGroup: "back", equipment: "barbell" },
-      { name: "Barbell Row", muscleGroup: "back", equipment: "barbell" },
-      { name: "Pull Up", muscleGroup: "back", equipment: "bodyweight" },
-      { name: "Lat Pulldown", muscleGroup: "back", equipment: "cable" },
-      { name: "Seated Row", muscleGroup: "back", equipment: "cable" },
-      { name: "Dumbbell Row", muscleGroup: "back", equipment: "dumbbell" },
-      { name: "T-Bar Row", muscleGroup: "back", equipment: "barbell" },
+export const search = query({
+  args: { query: v.string() },
+  handler: async (ctx, args) => {
+    const exercises = await ctx.db.query("exercises").collect();
+    const searchLower = args.query.toLowerCase();
+    return exercises.filter((e) =>
+      e.name.toLowerCase().includes(searchLower)
+    );
+  },
+});
 
-      { name: "Overhead Press", muscleGroup: "shoulders", equipment: "barbell" },
-      { name: "Lateral Raise", muscleGroup: "shoulders", equipment: "dumbbell" },
-      { name: "Face Pull", muscleGroup: "shoulders", equipment: "cable" },
-      { name: "Arnold Press", muscleGroup: "shoulders", equipment: "dumbbell" },
-      { name: "Front Raise", muscleGroup: "shoulders", equipment: "dumbbell" },
-      { name: "Reverse Fly", muscleGroup: "shoulders", equipment: "dumbbell" },
+export const getMuscleGroups = query({
+  args: {},
+  handler: async (ctx) => {
+    const exercises = await ctx.db.query("exercises").collect();
+    return [...new Set(exercises.map((e) => e.muscleGroup))].sort();
+  },
+});
 
-      { name: "Barbell Curl", muscleGroup: "biceps", equipment: "barbell" },
-      { name: "Dumbbell Curl", muscleGroup: "biceps", equipment: "dumbbell" },
-      { name: "Hammer Curl", muscleGroup: "biceps", equipment: "dumbbell" },
-      { name: "Preacher Curl", muscleGroup: "biceps", equipment: "machine" },
-      { name: "Incline Curl", muscleGroup: "biceps", equipment: "dumbbell" },
-      { name: "Cable Curl", muscleGroup: "biceps", equipment: "cable" },
+export const insertFromApi = mutation({
+  args: {
+    name: v.string(),
+    muscleGroup: v.string(),
+    secondaryMuscles: v.optional(v.array(v.string())),
+    equipment: v.string(),
+    gifUrl: v.optional(v.string()),
+    instructions: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("exercises")
+      .filter((q) => q.eq(q.field("name"), args.name))
+      .first();
 
-      { name: "Tricep Pushdown", muscleGroup: "triceps", equipment: "cable" },
-      { name: "Skull Crusher", muscleGroup: "triceps", equipment: "barbell" },
-      { name: "Tricep Dip", muscleGroup: "triceps", equipment: "bodyweight" },
-      { name: "Overhead Tricep Extension", muscleGroup: "triceps", equipment: "dumbbell" },
-      { name: "Close Grip Bench Press", muscleGroup: "triceps", equipment: "barbell" },
-      { name: "Tricep Kickback", muscleGroup: "triceps", equipment: "dumbbell" },
+    if (existing) return existing._id;
 
-      { name: "Squat", muscleGroup: "legs", equipment: "barbell" },
-      { name: "Leg Press", muscleGroup: "legs", equipment: "machine" },
-      { name: "Romanian Deadlift", muscleGroup: "legs", equipment: "barbell" },
-      { name: "Leg Curl", muscleGroup: "legs", equipment: "machine" },
-      { name: "Leg Extension", muscleGroup: "legs", equipment: "machine" },
-      { name: "Lunges", muscleGroup: "legs", equipment: "bodyweight" },
-      { name: "Bulgarian Split Squat", muscleGroup: "legs", equipment: "dumbbell" },
-      { name: "Hack Squat", muscleGroup: "legs", equipment: "machine" },
+    return await ctx.db.insert("exercises", {
+      ...args,
+      isCustom: false,
+    });
+  },
+});
 
-      { name: "Hip Thrust", muscleGroup: "glutes", equipment: "barbell" },
-      { name: "Glute Bridge", muscleGroup: "glutes", equipment: "bodyweight" },
-      { name: "Cable Kickback", muscleGroup: "glutes", equipment: "cable" },
-
-      { name: "Plank", muscleGroup: "core", equipment: "bodyweight" },
-      { name: "Crunch", muscleGroup: "core", equipment: "bodyweight" },
-      { name: "Hanging Leg Raise", muscleGroup: "core", equipment: "bodyweight" },
-      { name: "Cable Woodchop", muscleGroup: "core", equipment: "cable" },
-      { name: "Russian Twist", muscleGroup: "core", equipment: "bodyweight" },
-      { name: "Ab Wheel Rollout", muscleGroup: "core", equipment: "bodyweight" },
-
-      { name: "Standing Calf Raise", muscleGroup: "calves", equipment: "machine" },
-      { name: "Seated Calf Raise", muscleGroup: "calves", equipment: "machine" },
-
-      { name: "Wrist Curl", muscleGroup: "forearms", equipment: "dumbbell" },
-      { name: "Reverse Wrist Curl", muscleGroup: "forearms", equipment: "dumbbell" },
-      { name: "Farmer's Walk", muscleGroup: "forearms", equipment: "dumbbell" },
-    ];
-
+export const clearAll = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const exercises = await ctx.db.query("exercises").collect();
     for (const exercise of exercises) {
-      await ctx.db.insert("exercises", {
-        ...exercise,
-        isCustom: false,
+      await ctx.db.delete(exercise._id);
+    }
+    return `Deleted ${exercises.length} exercises`;
+  },
+});
+
+export const count = query({
+  args: {},
+  handler: async (ctx) => {
+    const exercises = await ctx.db.query("exercises").collect();
+    return exercises.length;
+  },
+});
+
+function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function buildExerciseDbUrl(args: { equipment?: string; bodyPart?: string; target?: string }): string {
+  const base = "https://exercisedb.p.rapidapi.com/exercises";
+  if (args.equipment) return `${base}/equipment/${encodeURIComponent(args.equipment)}`;
+  if (args.bodyPart) return `${base}/bodyPart/${encodeURIComponent(args.bodyPart)}`;
+  if (args.target) return `${base}/target/${encodeURIComponent(args.target)}`;
+  return base;
+}
+
+function shouldSkipExercise(
+  ex: { bodyPart: string; target: string; equipment: string },
+  filters: { equipment?: string; bodyPart?: string; target?: string }
+): boolean {
+  if (filters.equipment && filters.bodyPart && ex.bodyPart !== filters.bodyPart) return true;
+  if (filters.equipment && filters.target && ex.target !== filters.target) return true;
+  if (filters.bodyPart && filters.equipment && ex.equipment !== filters.equipment) return true;
+  if (filters.bodyPart && filters.target && ex.target !== filters.target) return true;
+  return false;
+}
+
+export const seedFromExerciseDb = action({
+  args: {
+    apiKey: v.string(),
+    equipment: v.optional(v.string()),
+    bodyPart: v.optional(v.string()),
+    target: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const maxExercises = args.limit ?? 100;
+    const baseUrl = buildExerciseDbUrl(args);
+    let totalInserted = 0;
+    let offset = 0;
+    let apiCalls = 0;
+
+    while (totalInserted < maxExercises && apiCalls < 100) {
+      const response = await fetch(`${baseUrl}?limit=10&offset=${offset}`, {
+        headers: {
+          "X-RapidAPI-Key": args.apiKey,
+          "X-RapidAPI-Host": "exercisedb.p.rapidapi.com",
+        },
       });
+      apiCalls++;
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      const exercises = await response.json();
+      if (exercises.length === 0) break;
+
+      for (const ex of exercises) {
+        if (totalInserted >= maxExercises) break;
+        if (shouldSkipExercise(ex, args)) continue;
+
+        await ctx.runMutation(api.exercises.insertFromApi, {
+          name: capitalize(ex.name),
+          muscleGroup: ex.target,
+          secondaryMuscles: ex.secondaryMuscles ?? [],
+          equipment: ex.equipment,
+          gifUrl: ex.gifUrl,
+          instructions: ex.instructions ?? [],
+        });
+        totalInserted++;
+      }
+
+      offset += 10;
     }
 
-    return "Seeded " + exercises.length + " exercises";
+    return `Seeded ${totalInserted} exercises (used ${apiCalls} API calls)`;
+  },
+});
+
+export const createCustom = mutation({
+  args: {
+    userId: v.string(),
+    name: v.string(),
+    muscleGroup: v.string(),
+    equipment: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("exercises", {
+      ...args,
+      isCustom: true,
+    });
   },
 });
