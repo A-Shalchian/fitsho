@@ -82,3 +82,54 @@ export const getById = query({
     return await ctx.db.get(args.workoutId);
   },
 });
+
+export const saveWorkout = mutation({
+  args: {
+    userId: v.string(),
+    startedAt: v.number(),
+    exercises: v.array(
+      v.object({
+        exerciseId: v.id("exercises"),
+        sets: v.array(
+          v.object({
+            weight: v.number(),
+            reps: v.number(),
+            rpe: v.optional(v.number()),
+            isWarmup: v.boolean(),
+          })
+        ),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const workoutId = await ctx.db.insert("workouts", {
+      userId: args.userId,
+      startedAt: args.startedAt,
+      completedAt: Date.now(),
+    });
+
+    for (let i = 0; i < args.exercises.length; i++) {
+      const ex = args.exercises[i];
+      const workoutExerciseId = await ctx.db.insert("workoutExercises", {
+        workoutId,
+        exerciseId: ex.exerciseId,
+        order: i,
+      });
+
+      for (let j = 0; j < ex.sets.length; j++) {
+        const set = ex.sets[j];
+        await ctx.db.insert("sets", {
+          workoutExerciseId,
+          setNumber: j + 1,
+          weight: set.weight,
+          reps: set.reps,
+          rpe: set.rpe,
+          isWarmup: set.isWarmup,
+          completedAt: Date.now(),
+        });
+      }
+    }
+
+    return workoutId;
+  },
+});
