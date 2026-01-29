@@ -5,7 +5,9 @@
       "Bash(npx convex init)",
       "Bash(npm run build:*)",
       "Bash(npm ls:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)",
+      "mcp__ide__getDiagnostics"
     ]
   },
   "enabledPlugins": {

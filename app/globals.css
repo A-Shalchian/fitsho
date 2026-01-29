@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+.dark {
   --background: #050505;
   --foreground: #ededed;
   --foreground-muted: #a1a1aa;
@@ -9,6 +10,17 @@
   --surface: #111111;
   --border: #1a1a1a;
   --grid-color: #222222;
+}
+
+.light {
+  --background: #ffffff;
+  --foreground: #111111;
+  --foreground-muted: #6b7280;
+  --accent: #7c3aed;
+  --accent-muted: #a78bfa;
+  --surface: #f9fafb;
+  --border: #e5e7eb;
+  --grid-color: #e5e7eb;
 }
 
 @theme inline {
@@ -44,6 +56,7 @@ body {
     linear-gradient(var(--grid-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
   background-size: 60px 60px;
+  background-position: 0 -30px;
   mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 80%);
   -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 80%);
 }
@@ -57,6 +70,10 @@ body {
   height: 60%;
   background: radial-gradient(ellipse 100% 70% at 50% 0%, rgba(124, 58, 237, 0.25), transparent 70%);
   pointer-events: none;
+}
+
+.light .grid-background::after {
+  background: radial-gradient(ellipse 100% 70% at 50% 0%, rgba(124, 58, 237, 0.12), transparent 70%);
 }
 
 @keyframes grid-pulse {
@@ -112,7 +129,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: var(--foreground-muted);
 }
 
 * {

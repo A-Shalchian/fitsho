@@ -23,15 +23,19 @@
 - [x] Custom scrollbar styling
 - [x] Filter by muscle group
 - [x] Filter by equipment
+- [x] Exercise picker with search (for workout flow)
+- [x] Set logging UI (weight, reps, warmup toggle)
+- [x] New workout flow (local state until finish)
+- [x] Dark/light mode toggle with system preference support
 
 ### In Progress
-- [ ] Exercise picker modal (for workout flow)
-- [ ] Set logging UI
-
-### Up Next
 - [ ] Calendar component (month view)
 - [ ] Workout day highlighting on calendar
 - [ ] Day detail view
+
+### Up Next
+- [ ] Show last session's performance for exercise
+- [ ] Workout timer/duration display
 
 ---
 
@@ -50,18 +54,19 @@
 - [x] Sorting by name/muscle/equipment
 - [x] Filter by muscle group
 - [x] Filter by equipment
-- [ ] Search functionality
+- [x] Search functionality (in workout exercise picker)
 - [ ] Custom exercise creation
 
 ### Phase 4: Workout Tracking (Core)
-- [ ] Start workout flow
-- [ ] Add exercise to active workout (exercise picker modal)
-- [ ] Set-by-set logging UI (weight, reps, RPE)
+- [x] Start workout flow
+- [x] Add exercise to active workout (exercise picker modal)
+- [x] Set-by-set logging UI (weight, reps)
 - [ ] Show last session's performance for exercise
-- [ ] Warmup set toggle
+- [x] Warmup set toggle
 - [ ] Workout notes
-- [ ] Complete workout flow
+- [x] Complete workout flow
 - [ ] Workout timer/duration display
+- [ ] RPE input
 
 ### Phase 5: Supplements
 - [ ] Supplement list management (add/remove/reorder)
@@ -114,7 +119,7 @@
 ## Design Notes
 
 ### UI Style
-- Dark mode only (#050505 background)
+- Dark/light mode with system preference support
 - Grid background with purple glow (animated on landing)
 - Minimal, utilitarian aesthetic
 - Single accent color (purple #7c3aed)
@@ -167,3 +172,13 @@
 - Added equipment filter (client-side on results)
 - Filter bar UI with dropdowns and clear button
 - Empty state for no results
+- Rebuilt workout flow: workout stays in local state until finish
+- Added exercise picker with muscle group filter and search
+- Added set logging UI with weight, reps, warmup toggle
+- Added saveWorkout mutation to save entire workout at once
+- Flow: Start → Pick Exercise → Log Sets → Next Exercise or Finish
+
+### 2026-01-29
+- Added dark/light mode with system preference detection
+- Theme toggle button in header (cycles: dark → light → system)
+- CSS variables for both themes, localStorage persistence
